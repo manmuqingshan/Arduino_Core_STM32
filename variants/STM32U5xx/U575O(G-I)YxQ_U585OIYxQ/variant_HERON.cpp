@@ -206,6 +206,19 @@ WEAK void SystemClock_Config(void)
   */
   __HAL_RCC_PWR_CLK_ENABLE();
 
+  /** Clear DBGMCU low-power-mode latch bits
+   *
+   * ST-Link and IDEs set DBG_STOP and DBG_STANDBY on debugger attach to keep
+   * the SWD link alive across low-power mode entry. These bits survive NRST,
+   * watchdog, and software reset, and only clear on a true VDD cycle. If
+   * left set in the field, the debug subsystem stays clocked in STOP2 and
+   * adds hundreds of uA.
+   *
+   * On STM32U5 only DBG_STOP and DBG_STANDBY exist in DBGMCU->CR; there is
+   * no DBG_SLEEP bit on the Cortex-M33 debug architecture.
+   */
+  CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY);
+
   /** Select SMPS as the Vcore regulator
    *
    * The STM32U575OIY6QTR (Q-suffix) exposes the dedicated SMPS pinout, and

@@ -158,6 +158,14 @@ WEAK void SystemClock_Config(void)
   */
   __HAL_RCC_PWR_CLK_ENABLE();
 
+  /* DBGMCU->CR debug bits (DBG_SLEEP, DBG_STOP, DBG_STANDBY) survive NRST
+   * and are cleared only on VDD cycle. A prior SWD session can latch them,
+   * leaving the debug subsystem clocked in STOP/STANDBY on every subsequent
+   * warm reboot (hundreds of uA). Scrub them on every boot.
+   */
+  CLEAR_BIT(DBGMCU->CR,
+            DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY);
+
   /* Voltage scaling - Scale 1 required for SYSCLK = 80 MHz
    * RM0394 s.5.1.7: VOS2 supports up to 26 MHz only
    */

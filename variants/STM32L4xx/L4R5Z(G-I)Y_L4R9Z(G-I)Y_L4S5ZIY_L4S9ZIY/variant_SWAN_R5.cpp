@@ -190,6 +190,14 @@ WEAK void SystemClock_Config(void)
   */
   __HAL_RCC_PWR_CLK_ENABLE();
 
+  /* DBGMCU->CR debug bits (DBG_SLEEP, DBG_STOP, DBG_STANDBY) survive NRST
+   * and are cleared only on VDD cycle. A prior SWD session can latch them,
+   * leaving the debug subsystem clocked in STOP/STANDBY on every subsequent
+   * warm reboot (hundreds of uA). Scrub them on every boot.
+   */
+  CLEAR_BIT(DBGMCU->CR,
+            DBGMCU_CR_DBG_SLEEP | DBGMCU_CR_DBG_STOP | DBGMCU_CR_DBG_STANDBY);
+
   /* Voltage scaling - Scale 1 Boost required for SYSCLK = 120 MHz
    * RM0432 s.5.1.8: "In Range 1 boost mode (R1MODE = 0), the maximum system
    * clock frequency is 120 MHz"
